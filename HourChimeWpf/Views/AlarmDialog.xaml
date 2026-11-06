@@ -1,0 +1,105 @@
+<Window x:Class="HourChime.Views.AlarmDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="闹钟" Width="464" SizeToContent="Height"
+        WindowStyle="None" ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner"
+        Background="{StaticResource Bg}"
+        FontFamily="Microsoft YaHei UI" FontSize="12.5"
+        TextOptions.TextFormattingMode="Ideal" UseLayoutRounding="True"
+        ShowInTaskbar="False">
+
+    <Border Background="{StaticResource Bg}" BorderBrush="{StaticResource Border}" BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="46" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0" Background="Transparent" MouseLeftButtonDown="TitleBar_MouseDown">
+                <TextBlock x:Name="TitleText" Text="新建闹钟" FontSize="13" FontWeight="SemiBold"
+                           VerticalAlignment="Center" Margin="20,0,0,0" />
+                <Button Style="{StaticResource TitleBarButton}" Content="✕" FontSize="11"
+                        HorizontalAlignment="Right" Margin="0,0,10,0" Click="Cancel_Click" />
+            </Grid>
+
+            <StackPanel Grid.Row="1" Margin="22,4,22,20">
+
+                <!-- 时间 -->
+                <TextBlock Text="时间" Style="{StaticResource SectionText}" />
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,8,0,4">
+                    <ComboBox x:Name="HourBox" Style="{StaticResource Combo}" Width="100" Height="62"
+                              FontSize="27" Padding="14,0,30,0" MaxDropDownHeight="240" />
+                    <TextBlock Text=":" FontSize="27" Foreground="{StaticResource SubFg}"
+                               VerticalAlignment="Center" Margin="8,0" />
+                    <ComboBox x:Name="MinuteBox" Style="{StaticResource Combo}" Width="100" Height="62"
+                              FontSize="27" Padding="14,0,30,0" MaxDropDownHeight="240" />
+                </StackPanel>
+
+                <!-- 说明 -->
+                <TextBlock Text="说明" Style="{StaticResource SectionText}" Margin="0,16,0,6" />
+                <TextBox x:Name="LabelBox" Style="{StaticResource Input}" MaxLength="24"
+                         ToolTip="例如：起床、开会、吃药" />
+
+                <!-- 重复 -->
+                <TextBlock Text="重复" Style="{StaticResource SectionText}" Margin="0,16,0,6" />
+                <Border Style="{StaticResource Inset}" Padding="2">
+                    <UniformGrid Columns="4">
+                        <RadioButton x:Name="RepeatDaily" GroupName="Repeat" Content="每天"
+                                     Style="{StaticResource Segment}" Checked="Repeat_Checked" />
+                        <RadioButton x:Name="RepeatWeekdays" GroupName="Repeat" Content="工作日"
+                                     Style="{StaticResource Segment}" Checked="Repeat_Checked" />
+                        <RadioButton x:Name="RepeatWeekend" GroupName="Repeat" Content="周末"
+                                     Style="{StaticResource Segment}" Checked="Repeat_Checked" />
+                        <RadioButton x:Name="RepeatOnce" GroupName="Repeat" Content="仅一次"
+                                     Style="{StaticResource Segment}" Checked="Repeat_Checked" />
+                    </UniformGrid>
+                </Border>
+
+                <Grid x:Name="DateRow" Margin="0,12,0,0" Visibility="Collapsed">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="72" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="日期" Style="{StaticResource SectionText}" />
+                    <ComboBox x:Name="DateBox" Grid.Column="1" Style="{StaticResource Combo}"
+                              DisplayMemberPath="Text" />
+                </Grid>
+
+                <!-- 响铃 -->
+                <TextBlock Text="响铃方式" Style="{StaticResource SectionText}" Margin="0,16,0,6" />
+                <Border Style="{StaticResource Inset}" Padding="2">
+                    <UniformGrid Columns="3">
+                        <RadioButton x:Name="RingBoth" GroupName="Ring" Content="语音 + 提示音"
+                                     Style="{StaticResource Segment}" />
+                        <RadioButton x:Name="RingChime" GroupName="Ring" Content="仅提示音"
+                                     Style="{StaticResource Segment}" />
+                        <RadioButton x:Name="RingSilent" GroupName="Ring" Content="静音弹窗"
+                                     Style="{StaticResource Segment}" />
+                    </UniformGrid>
+                </Border>
+
+                <!-- 贪睡 -->
+                <Grid Margin="0,16,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="72" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="贪睡" Style="{StaticResource SectionText}" />
+                    <ComboBox x:Name="SnoozeBox" Grid.Column="1" Style="{StaticResource Combo}"
+                              Width="150" HorizontalAlignment="Left" DisplayMemberPath="Text" />
+                </Grid>
+
+                <TextBlock Text="闹钟响铃时会弹出提醒卡片，可在卡片上选择「稍后再提醒」。"
+                           Style="{StaticResource HintText}" Margin="0,16,0,0" TextWrapping="Wrap" />
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+                    <Button Content="取消" Style="{StaticResource SecondaryButton}" Width="88"
+                            Click="Cancel_Click" />
+                    <Button Content="保存" Style="{StaticResource PrimaryButton}" Width="96" Margin="10,0,0,0"
+                            Click="Save_Click" IsDefault="True" />
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

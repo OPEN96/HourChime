@@ -1,0 +1,74 @@
+name: 问题反馈
+description: 报告 HourChime 的异常行为（不响、报错、界面异常等）
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢反馈！提交前请先确认使用的是 [最新版本](https://github.com/OPEN96/HourChime/releases)。
+        请勿粘贴 `settings.json` 全文（可能包含个人备注），只提供相关字段即可。
+
+  - type: input
+    id: version
+    attributes:
+      label: 应用版本
+      description: 主窗口标题或 Release 标签，例如 v2.1.0
+      placeholder: v2.1.0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: package
+    attributes:
+      label: 使用的版本
+      options:
+        - 自包含版（xxx-win-x64.zip）
+        - 框架依赖版（xxx-framework-dependent.zip）
+        - 自行从源码构建
+    validations:
+      required: true
+
+  - type: input
+    id: windows
+    attributes:
+      label: Windows 版本
+      placeholder: Windows 11 24H2
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: 发生了什么
+      description: 期望的行为是什么，实际发生了什么？
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤
+      placeholder: |
+        1. 设置闹钟到 ...
+        2. 勾选 ...
+        3. 等待 ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: log
+    attributes:
+      label: 崩溃日志（如有）
+      description: 附件或粘贴 `%APPDATA%\HourChime\crash.log` 的内容
+      render: text
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: 确认
+      options:
+        - label: 我已确认没有同时运行第二个实例（单实例互斥）
+          required: false
+        - label: 我已检查免打扰时段与「暂停提醒 30 分钟」是否开启
+          required: false

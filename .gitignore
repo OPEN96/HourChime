@@ -1,0 +1,32 @@
+# ---- .NET 构建产物 ----
+**/bin/
+**/obj/
+**/publish*/
+artifacts/
+*.pdb
+*.cache
+*.log
+crash.log
+
+# ---- IDE / 编辑器 ----
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# ---- WorkBuddy 会话数据（非项目文件）----
+.workbuddy/
+
+# ---- 调试截图（保留 docs/images/ 下的正式文档配图）----
+HourChimeWpf/shots/
+
+# ---- 未纳入本次开源的 WinForms 历史版本 ----
+/HourChime/
+
+# ---- 操作系统 ----
+Thumbs.db
+Desktop.ini
+.DS_Store

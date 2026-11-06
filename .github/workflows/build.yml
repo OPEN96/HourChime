@@ -1,0 +1,121 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (without the leading v); leave empty for a CI build'
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build and package (Windows)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Show SDK info
+        shell: pwsh
+        run: dotnet --info
+
+      - name: Resolve version
+        id: ver
+        shell: pwsh
+        env:
+          INPUT_VERSION: ${{ github.event.inputs.version }}
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+          RUN_NUMBER: ${{ github.run_number }}
+        run: |
+          if ($env:INPUT_VERSION) {
+            $v = $env:INPUT_VERSION
+          }
+          elseif ($env:REF_TYPE -eq 'tag' -and $env:REF_NAME -like 'v*') {
+            $v = $env:REF_NAME.Substring(1)
+          }
+          else {
+            $v = "0.0.0-ci.$($env:RUN_NUMBER)"
+          }
+          "version=$v" >> $env:GITHUB_OUTPUT
+          Write-Host "Building version $v"
+
+      - name: Build packages
+        shell: pwsh
+        run: |
+          pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/build.ps1 `
+            -Version "${{ steps.ver.outputs.version }}" `
+            -OutputDir artifacts
+
+      - name: Verify checksums
+        shell: pwsh
+        run: |
+          $sums = Join-Path artifacts 'SHA256SUMS.txt'
+          $lines = Get-Content $sums | Where-Object { $_.Trim() }
+          foreach ($line in $lines) {
+            $expected, $name = $line -split '\s+', 2
+            $actual = (Get-FileHash (Join-Path artifacts $name) -Algorithm SHA256).Hash.ToLowerInvariant()
+            if ($actual -ne $expected) { throw "Checksum mismatch in SHA256SUMS.txt: $name" }
+            Write-Host "OK  $name  $actual"
+          }
+          foreach ($f in Get-ChildItem artifacts -Filter '*.sha256') {
+            $expected, $name = (Get-Content $f.FullName -Raw).Trim() -split '\s+', 2
+            $actual = (Get-FileHash (Join-Path artifacts $name) -Algorithm SHA256).Hash.ToLowerInvariant()
+            if ($actual -ne $expected) { throw "Checksum mismatch in $($f.Name)" }
+            Write-Host "OK  $($f.Name)"
+          }
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: HourChime-packages
+          path: |
+            artifacts/*.zip
+            artifacts/*.sha256
+            artifacts/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 30
+
+  release:
+    name: Publish GitHub Release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: HourChime-packages
+          path: artifacts
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          gh release create "$TAG" \
+            artifacts/*.zip \
+            artifacts/*.sha256 \
+            artifacts/SHA256SUMS.txt \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "HourChime $TAG" \
+            --generate-notes \
+            --verify-tag
